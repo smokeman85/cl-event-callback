@@ -24,6 +24,9 @@
 (defun del-callback(name)
   (remhash name *callbacks*))
 
+(defun start-callback(name)
+  (create-thread (gethash name *callbacks*)))
+
 (defun get-list-event-name()
   (let (names)
   (loop for key being the hash-keys of *events*
@@ -34,32 +37,42 @@
       (car l)
       nil))
 
-(defun test (l)
-  (let (a)
-    (setq a (get-element-list-event l))
-    (if (eq a nil) 
-	(print "list is nil")
-	(print a))
-    (test (cdr l))))
-
-(defun test2 (l)
-  (let (a) (setq a (get-element-list-event l))
-    (cond ((eq a nil) (print "list is nil"))
-	  (T (lambda(a l) (print a) (test2 (cdr l))) a l)
-      )))
-
 (defun get-event-state(name)
   (gethash name *events*))
 
 (defun check-use-event (name)
-  (if (eq (get-event-state name) :use) t nil))
+  (if (eq (get-event-state name) :use) T nil))
 
-(defun create-thread (f)
-  (sb-thread:make-thread (lambda() (eval f))))
+(defun create-thread (f &optional thread-name)
+  (sb-thread:make-thread (lambda() (eval f)) :name thread-name))
 
-;;do make-thread
-;;(defun run-callbacks ()
-;;  (loop 
-;;       do
-;;       (let (events (get-list-event-name))
-;;	 )))
+(defun run-callbacks ()
+  (loop do
+  (loop for i in (get-list-event-name) 
+       do
+       (let (event) (setq event i)
+	    (if (eq (check-use-event event) T)
+		(start-callback event)
+		;;(sleep 1))
+	    (sleep 1)))
+       )))
+
+(defun thread-run-callbacks ()
+  (create-thread '(run-callbacks) "run-callbacks"))
+
+(defun thread-stop-callbacks ()
+  (if (numberp (find-thread-by-name "run-callbacks"))
+      (sb-thread:terminate-thread (nth (find-thread-by-name "run-callbacks") (sb-thread:list-all-threads)))))
+
+(defun list-to-string (l)
+  (format nil "~a" l))
+
+(defun find-thread-by-name (name)
+  (let ((th) (result) (k 0))
+    (setq result nil)
+    (setq th (sb-thread:list-all-threads))
+    (loop for l in th do
+	   (if (numberp (search name (list-to-string l)))
+	       (return k))
+	 (1+ k)
+	 )))
