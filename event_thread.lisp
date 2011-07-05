@@ -2,7 +2,7 @@
 
 (defparameter *events* (make-hash-table))
 
-(defparameter *event-state* '(:use :not-use))
+(defparameter *event-state* '(:triggered :not-triggered))
 
 (defparameter *callbacks* (make-hash-table))
 
@@ -12,10 +12,10 @@
 (defun del-event (name)
   (remhash name *events*))
 
-(defun use-event (name)
+(defun triggered-event (name)
   (setf (gethash name *events*) (car *event-state*)))
 
-(defun not-use-event (name)
+(defun not-triggered-event (name)
   (setf (gethash name *events*) (cadr *event-state*)))
 
 (defun add-callback(f name)
