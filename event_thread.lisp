@@ -3,11 +3,9 @@
 ;(defpackage :cl-event-callback
 ;  (:use :cl)
 ;  (:export :add-event
-;	   :del-event
-;	   :add-callback
-;	   :del-callback
-;	   :thread-run-callbacks
-;	   :thread-stop-callbacks))
+;	    :del-event
+;	    :thread-run-callbacks
+;	    :thread-stop-callbacks))
 
 ;(in-package :cl-event-callback)
 
@@ -22,13 +20,15 @@
       (setf (gethash name *events*) state)
       (prin1 "Not found this state")))
 
-(defun add-event (name)
+(defun add-event (f name)
   "add new event"
-  (setf (gethash name *events*) (car *event-state*)))
+  (setf (gethash name *events*) (car *event-state*))
+  (add-callback f name))
 
 (defun del-event (name)
   "delete event"
-  (remhash name *events*))
+  (remhash name *events*)
+  (del-callback name))
 
 (defun trig-event (name)
   "triggered event"
