@@ -2,10 +2,10 @@
 
 (defpackage :cl-event-callback
   (:use :cl)
-  (:export :add-event
-	   :del-event
-	   :add-callback
-	   :del-callback
+  (:export :connect
+	   :disconnect
+	   :trig-event
+	   :not-trig-event
 	   :thread-run-callbacks
 	   :thread-stop-callbacks))
 
@@ -13,9 +13,17 @@
 
 (defparameter *events* (make-hash-table))
 
-(defparameter *event-state* '(:triggered :not-triggered))
+(defparameter *event-state* '(:trig :not-trig))
 
 (defparameter *callbacks* (make-hash-table))
+
+(defun connect (f name)
+  (add-event name)
+  (add-callback f name))
+
+(defun disconnect (name)
+  (del-event name)
+  (del-callback name))
 
 (defun add-event (name)
   "add new event"
@@ -25,11 +33,11 @@
   "delete event"
   (remhash name *events*))
 
-(defun triggered-event (name)
+(defun trig-event (name)
   "triggered event"
   (setf (gethash name *events*) (car *event-state*)))
 
-(defun not-triggered-event (name)
+(defun not-trig-event (name)
   "dont triggered event"
   (setf (gethash name *events*) (cadr *event-state*)))
 
@@ -58,7 +66,7 @@
   (gethash name *events*))
 
 (defun check-use-event (name)
-  (if (eq (get-event-state name) :use) T nil))
+  (if (eq (get-event-state name) :trig) T nil))
 
 (defun create-thread (f &optional thread-name)
   (sb-thread:make-thread (lambda() (eval f)) :name thread-name))
