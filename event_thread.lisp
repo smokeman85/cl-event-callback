@@ -1,37 +1,42 @@
 ;;
 
-(defpackage :cl-event-callback
-  (:use :cl)
-  (:export :add-event
-	   :del-event
-	   :add-callback
-	   :del-callback
-	   :thread-run-callbacks
-	   :thread-stop-callbacks))
+;(defpackage :cl-event-callback
+;  (:use :cl)
+;  (:export :add-event
+;	   :del-event
+;	   :add-callback
+;	   :del-callback
+;	   :thread-run-callbacks
+;	   :thread-stop-callbacks))
 
-(in-package :cl-event-callback)
+;(in-package :cl-event-callback)
 
 (defparameter *events* (make-hash-table))
 
-(defparameter *event-state* '(:triggered :not-triggered))
+(defparameter *event-state* '(:not-trig :trig :trig-stop))
 
 (defparameter *callbacks* (make-hash-table))
 
+(defun set-event-state (name state)
+  (if (member state *event-state*)
+      (setf (gethash name *events*) state)
+      (prin1 "Not found this state")))
+
 (defun add-event (name)
   "add new event"
-  (setf (gethash name *events*) (cadr *event-state*)))
+  (setf (gethash name *events*) (car *event-state*)))
 
 (defun del-event (name)
   "delete event"
   (remhash name *events*))
 
-(defun triggered-event (name)
+(defun trig-event (name)
   "triggered event"
-  (setf (gethash name *events*) (car *event-state*)))
-
-(defun not-triggered-event (name)
-  "dont triggered event"
   (setf (gethash name *events*) (cadr *event-state*)))
+
+(defun not-trig-event (name)
+  "dont triggered event"
+  (setf (gethash name *events*) (car *event-state*)))
 
 (defun add-callback(f name)
   "Link callback and event"
