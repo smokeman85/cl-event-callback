@@ -1,13 +1,14 @@
 ;;
+(defpackage :cl-event-callback
+  (:use :cl)
+  (:export :connect
+	   :disconnect
+	   :trig-event
+	   :not-trig-event
+	   :thread-run-callbacks
+	   :thread-stop-callbacks))
 
-;(defpackage :cl-event-callback
-;  (:use :cl)
-;  (:export :add-event
-;	    :del-event
-;	    :thread-run-callbacks
-;	    :thread-stop-callbacks))
-
-;(in-package :cl-event-callback)
+(in-package :cl-event-callback)
 
 (defparameter *events* (make-hash-table))
 
@@ -20,15 +21,21 @@
       (setf (gethash name *events*) state)
       (prin1 "Not found this state")))
 
-(defun add-event (f name)
-  "add new event"
-  (setf (gethash name *events*) (car *event-state*))
+(defun connect (f name)
+  (add-event name)
   (add-callback f name))
+
+(defun disconnect (name)
+  (del-event name)
+  (del-callback name))
+
+(defun add-event (name)
+  "add new event"
+  (setf (gethash name *events*) (car *event-state*)))
 
 (defun del-event (name)
   "delete event"
-  (remhash name *events*)
-  (del-callback name))
+  (remhash name *events*))
 
 (defun trig-event (name)
   "triggered event"
@@ -63,7 +70,7 @@
   (gethash name *events*))
 
 (defun check-use-event (name)
-  (if (eq (get-event-state name) :use) T nil))
+  (if (eq (get-event-state name) :trig) T nil))
 
 (defun create-thread (f &optional thread-name)
   (sb-thread:make-thread (lambda() (eval f)) :name thread-name))
