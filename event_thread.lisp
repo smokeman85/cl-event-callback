@@ -86,6 +86,17 @@
 (defun create-thread (f &optional thread-name)
   (sb-thread:make-thread (lambda() (eval f)) :name thread-name))
 
+(defun run-callbacks-1 ()
+  (loop do 
+  (loop for i in (get-list-event-name)
+       do
+       (let (event state)
+	 (setq event i)
+	 (setq state (get-event-state event))
+	 (cond ((check-condition event) (if (eval (gethash event *condition*)) (start-callback event) (not-trig-event event)))
+	       ((eq state :trig) (start-callback event))
+	       ((eq state :trig-stop) (start-callback event) (not-trig-event event))
+	       (t (sleep 1)))))))
 
 (defun run-callbacks()
   (loop do 
@@ -100,7 +111,7 @@
 
 (defun thread-run-callbacks ()
   "start handler of events"
-  (create-thread '(run-callbacks) "run-callbacks"))
+  (create-thread '(run-callbacks-1) "run-callbacks"))
 
 (defun thread-stop-callbacks ()
   "stop handler of events"
