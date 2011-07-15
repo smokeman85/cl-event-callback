@@ -1,20 +1,31 @@
 ;;
-(defpackage :cl-event-callback
-  (:use :cl)
-  (:export :connect
-	   :disconnect
-	   :trig-event
-	   :not-trig-event
-	   :thread-run-callbacks
-	   :thread-stop-callbacks))
+;(defpackage :cl-event-callback
+;  (:use :cl)
+;  (:export :connect
+;	   :disconnect
+;	   :trig-event
+;	   :not-trig-event
+;	   :thread-run-callbacks
+;	   :thread-stop-callbacks))
+;
+;(in-package :cl-event-callback)
 
-(in-package :cl-event-callback)
+(defparameter *condition* (make-hash-table))
 
 (defparameter *events* (make-hash-table))
 
 (defparameter *event-state* '(:not-trig :trig :trig-stop))
 
 (defparameter *callbacks* (make-hash-table))
+
+(defun add-condition (name condition)
+  (setf (gethash name *condition*) condition))
+
+(defun del-condition (name)
+  (remhash name *condition*))
+
+(defun check-condition (name)
+  (gethash name *condition*))
 
 (defun set-event-state (name state)
   (if (member state *event-state*)
@@ -75,16 +86,7 @@
 (defun create-thread (f &optional thread-name)
   (sb-thread:make-thread (lambda() (eval f)) :name thread-name))
 
-;(defun run-callbacks ()
-;  (loop do
-;  (loop for i in (get-list-event-name) 
-;       do
-;       (let (event) (setq event i)
-;	    (if (eq (check-use-event event) T)
-;		(start-callback event)
-;		;;(sleep 1))
-;	    (sleep 1)))
-;      )))
+
 (defun run-callbacks()
   (loop do 
   (loop for i in (get-list-event-name)
