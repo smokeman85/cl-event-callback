@@ -32,13 +32,15 @@
       (setf (gethash name *events*) state)
       (prin1 "Not found this state")))
 
-(defun connect (f name)
+(defun connect (f name &optional condition)
   (add-event name)
-  (add-callback f name))
+  (add-callback f name)
+  (add-condition name condition))
 
 (defun disconnect (name)
   (del-event name)
-  (del-callback name))
+  (del-callback name)
+  (del-condition name))
 
 (defun add-event (name)
   "add new event"
@@ -86,7 +88,7 @@
 (defun create-thread (f &optional thread-name)
   (sb-thread:make-thread (lambda() (eval f)) :name thread-name))
 
-(defun run-callbacks-1 ()
+(defun run-callbacks ()
   (loop do 
   (loop for i in (get-list-event-name)
        do
@@ -98,20 +100,9 @@
 	       ((eq state :trig-stop) (start-callback event) (not-trig-event event))
 	       (t (sleep 1)))))))
 
-(defun run-callbacks()
-  (loop do 
-  (loop for i in (get-list-event-name)
-       do
-       (let (event state)
-	 (setq event i)
-	 (setq state (get-event-state event))
-	 (cond ((eq state :trig) (start-callback event))
-	       ((eq state :trig-stop) (start-callback event) (not-trig-event event))
-	       (t (sleep 1)))))))
-
 (defun thread-run-callbacks ()
   "start handler of events"
-  (create-thread '(run-callbacks-1) "run-callbacks"))
+  (create-thread '(run-callbacks) "run-callbacks"))
 
 (defun thread-stop-callbacks ()
   "stop handler of events"
