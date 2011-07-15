@@ -1,14 +1,15 @@
 ;;
-;(defpackage :cl-event-callback
-;  (:use :cl)
-;  (:export :connect
-;	   :disconnect
-;	   :trig-event
-;	   :not-trig-event
-;	   :thread-run-callbacks
-;	   :thread-stop-callbacks))
-;
-;(in-package :cl-event-callback)
+(defpackage :cl-event-callback
+  (:use :cl)
+  (:export :connect
+	   :disconnect
+	   :trig-event
+	   :not-trig-event
+	   :thread-run-callbacks
+	   :thread-stop-callbacks
+	   :set-event-state))
+
+(in-package :cl-event-callback)
 
 (defparameter *condition* (make-hash-table))
 
