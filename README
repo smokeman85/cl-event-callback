@@ -1,0 +1,70 @@
+This package was designed for subscribing functions on events. 
+The function will have been called when the event had occured.
+The package supports following opportunity:
+  1. Auto and manual control
+  2. Tracking changes of a variable in a function of the event
+  3. Four state of the event
+
+For example:
+1. Auto control
+;-------------------------------------------------------------
+(in-package :cl-event-callback)
+
+;define a test variable
+(defparameter *a* 1)
+
+; define a test function
+(defun test () (print "test"))
+
+;create a new callback-event
+(defun new-event ()
+       (connect '(test) 'test-event '(> *a* 3)))
+
+(defun event-change (var)
+       (setq *a* var))
+
+;delete event
+(defun del-test-event ()
+       (disconnect 'test-event))
+
+;main function
+(defun main ()
+       (new-event)		; <- create the event
+       (thread-run-callbacks)   ; <- tracking change of events
+       (event-change 5)         ; <- occurrence of the event
+       (sleep 3)
+       (event-change 1)         ; <- set an original state
+       (del-test-event)         ; <- delete the event
+       (thread-stop-callbacks)) ; <- stop tracking
+;-------------------------------------------------------------
+2. Manual control
+;-------------------------------------------------------------
+
+;define first test function
+(defun test1 () (print "test1"))
+
+;define second test function
+(defun test2 () (print "test2"))
+
+;create two events
+(defun create-events()
+       (connect '(test1) 'test-one)
+       (connect '(test2) 'test-two))
+
+(defun delete-events ()
+       (disconnect 'test-one)
+       (disconnect 'test-two))
+
+
+(defun main ()
+       (create-events)			     ; <- create events
+       (thread-run-callbacks)                ; <- tracking change of events
+       (set-event-state 'test-one :trig)     ; <- set a state of the event to triggered
+       (set-event-state 'test-two :trig-stop); <- this mode allows you to execute the event only once and the event goes 
+       				             ; to the :not-trig state.
+       (sleep 2)
+       (set-event-state 'test-one :not-trig) ; <- manually change the event to the :not-trig state 
+       (delete-events)
+       (thread-stop-callbacks))
+ 
+;-------------------------------------------------------------
