@@ -1,5 +1,4 @@
-;;
-(defpackage :cl-event-callback
+(defpackage #:cl-event-callback
   (:use :cl)
   (:export :connect
 	   :disconnect
