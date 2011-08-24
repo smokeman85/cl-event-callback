@@ -8,7 +8,7 @@
 	   :thread-stop-callbacks
 	   :set-event-state))
 
-(in-package :cl-event-callback)
+(in-package #:cl-event-callback)
 
 (defparameter *condition* (make-hash-table))
 
