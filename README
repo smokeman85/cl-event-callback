@@ -1,5 +1,5 @@
-This package was designed for subscribing functions on events. 
-The function will have been called when the event had occured.
+This package has been developed for subscription functions to events.
+It provides that a function can be called when the event occurred.
 The package supports following opportunity:
   1. Auto and manual control
   2. Tracking changes of a variable in a function of the event
