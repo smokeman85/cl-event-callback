@@ -85,8 +85,8 @@
 (defun check-use-event (name)
   (if (eq (get-event-state name) :trig) T nil))
 
-(defun create-thread (f &optional thread-name)
-  (sb-thread:make-thread (lambda() (eval f)) :name thread-name))
+(defun create-thread (f &optional name-of-thread)
+  (bordeaux-threads:make-thread (lambda() (eval f)) :name name-of-thread))
 
 (defun run-callbacks ()
   (loop do 
@@ -107,7 +107,7 @@
 (defun thread-stop-callbacks ()
   "stop handler of events"
   (if (numberp (find-thread-by-name "run-callbacks"))
-      (sb-thread:terminate-thread (nth (find-thread-by-name "run-callbacks") (sb-thread:list-all-threads)))))
+      (bordeaux-threads:destroy-thread (nth (find-thread-by-name "run-callbacks") (bordeaux-threads:all-threads)))))
 
 (defun list-to-string (l)
   (format nil "~a" l))
@@ -115,7 +115,7 @@
 (defun find-thread-by-name (name)
   (let ((th) (result) (k 0))
     (setq result nil)
-    (setq th (sb-thread:list-all-threads))
+    (setq th (bordeaux-threads:all-threads))
     (loop for l in th do
 	   (if (numberp (search name (list-to-string l)))
 	       (return k))
